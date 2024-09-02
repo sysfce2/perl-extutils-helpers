@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Helpers
 
 {{$NEXT}}
+          - Add ext argument to man1_pagename and man3_pagename
 
 0.027     2024-06-18 20:34:46+02:00 Europe/BrusselsA
           - Revert "Make split_like_shell always unixy"
