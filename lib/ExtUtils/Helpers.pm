@@ -7,7 +7,6 @@ use Exporter 5.57 'import';
 use Config;
 use File::Basename qw/basename/;
 use File::Spec::Functions qw/splitpath canonpath abs2rel splitdir/;
-use Text::ParseWords 3.24 ();
 
 our @EXPORT_OK = qw/make_executable split_like_shell man1_pagename man3_pagename detildefy/;
 
@@ -19,19 +18,10 @@ BEGIN {
 	"ExtUtils::Helpers::$impl"->import();
 }
 
-sub split_like_shell {
-	my ($string) = @_;
-
-	return if not defined $string;
-	$string =~ s/^\s+|\s+$//g;
-	return if not length $string;
-
-	return Text::ParseWords::shellwords($string);
-}
-
 sub man1_pagename {
-	my $filename = shift;
-	return basename($filename).".$Config{man1ext}";
+	my ($filename, $ext) = @_;
+	$ext ||= $Config{man1ext};
+	return basename($filename).".$ext";
 }
 
 my %separator = (
@@ -43,12 +33,13 @@ my %separator = (
 my $separator = $separator{$^O} || '::';
 
 sub man3_pagename {
-	my ($filename, $base) = @_;
+	my ($filename, $base, $ext) = @_;
 	$base ||= 'lib';
+	$ext  ||= $Config{man3ext};
 	my ($vols, $dirs, $file) = splitpath(canonpath(abs2rel($filename, $base)));
 	$file = basename($file, qw/.pm .pod/);
 	my @dirs = grep { length } splitdir($dirs);
-	return join $separator, @dirs, "$file.$Config{man3ext}";
+	return join $separator, @dirs, "$file.$ext";
 }
 
 1;
@@ -81,11 +72,11 @@ This function splits a string the same way as the local platform does.
 
 This function substitutes a tilde at the start of a path with the users homedir in an appropriate manner.
 
-=func man1_pagename($filename)
+=func man1_pagename($filename, $ext = $Config{man1ext})
 
 Returns the man page filename for a script.
 
-=func man3_pagename($filename, $basedir)
+=func man3_pagename($filename, $basedir = 'lib', $ext = $Config{man3ext})
 
 Returns the man page filename for a Perl library.
 
